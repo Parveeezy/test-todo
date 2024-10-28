@@ -19,7 +19,7 @@ export const Tasks = ({ todolist }: Props) => {
 
   useEffect(() => {
     dispatch(fetchTasksTC(todolist.id))
-  }, [dispatch])
+  }, [])
 
   const allTodolistTasks = tasks[todolist.id]
 

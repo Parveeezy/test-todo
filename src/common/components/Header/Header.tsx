@@ -11,17 +11,28 @@ import { useAppDispatch } from "../../hooks/useAppDispatch"
 import { useAppSelector } from "../../hooks/useAppSelector"
 import { selectAppStatus } from "../../../app/appStatusSelect"
 import { selectThemeMode } from "../../../app/appSelectors"
+import { selectIsLoggedIn } from "../../../features/auth/model/authSelectors"
+import { logoutTC } from "../../../features/auth/model/auth-reducer"
+import { Navigate } from "react-router-dom"
+import { Path } from "common/router"
 
 export const Header = () => {
   const dispatch = useAppDispatch()
   const themeMode = useAppSelector(selectThemeMode)
   const status = useAppSelector(selectAppStatus)
   const theme = getTheme(themeMode)
-
-  console.log(status)
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const changeModeHandler = () => {
     dispatch(changeThemeAC(themeMode === "light" ? "dark" : "light"))
+  }
+
+  const logoutHandler = () => {
+    dispatch(logoutTC())
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to={Path.Login} />
   }
 
   return (
@@ -31,8 +42,7 @@ export const Header = () => {
           <MenuIcon />
         </IconButton>
         <div>
-          <MenuButton>Login</MenuButton>
-          <MenuButton>Logout</MenuButton>
+          {isLoggedIn && <MenuButton onClick={logoutHandler}>Logout</MenuButton>}
           <MenuButton background={theme.palette.primary.dark}>Faq</MenuButton>
           <Switch color={"default"} onChange={changeModeHandler} />
         </div>

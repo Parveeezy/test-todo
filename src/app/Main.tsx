@@ -3,15 +3,23 @@ import Container from "@mui/material/Container"
 import Grid2 from "@mui/material/Grid2"
 import { AddItemForm } from "common/components/AddItemForm/AddItemForm"
 import Todolists from "../features/todolists/ui/Todolists/Todolists"
-import { v1 } from "uuid"
 import { addTodolistTC } from "../features/todolists/model/todolists-reducer"
 import { useAppDispatch } from "common/hooks/useAppDispatch"
+import { Navigate } from "react-router-dom"
+import { Path } from "common/router"
+import { useAppSelector } from "common/hooks/useAppSelector"
+import { selectIsLoggedIn } from "../features/auth/model/authSelectors"
 
 const Main = () => {
   const dispatch = useAppDispatch()
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const addTodolist = (title: string) => {
     dispatch(addTodolistTC({ title }))
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to={Path.Login} />
   }
 
   return (
