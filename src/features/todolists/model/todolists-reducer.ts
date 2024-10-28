@@ -1,12 +1,13 @@
-import { v1 } from "uuid"
 import { Todolist } from "../api/todolistsApi.types"
 import { Dispatch } from "redux"
 import { todolistsApi } from "../api/todolistsApi"
+import { RequestStatus, setAppStatusAC } from "../../../app/app-reducer"
 
 export type FilterValuesType = "all" | "active" | "completed"
 
 export type DomainTodolist = Todolist & {
   filter: FilterValuesType
+  entityStatus: RequestStatus
 }
 
 // Действия
@@ -15,6 +16,7 @@ export type RemoveTodolistActionType = ReturnType<typeof removeTodolistAC>
 export type AddTodolistActionType = ReturnType<typeof addTodolistAC>
 export type ChangeTodolistTitleActionType = ReturnType<typeof changeTodolistTitleAC>
 export type ChangeTodolistFilterActionType = ReturnType<typeof changeTodolistFilterAC>
+export type ChangeTodolistEntityStatusType = ReturnType<typeof changeTodolistEntityStatusAC>
 
 type ActionsType =
   | SetTodolistsActionType
@@ -22,29 +24,26 @@ type ActionsType =
   | AddTodolistActionType
   | ChangeTodolistTitleActionType
   | ChangeTodolistFilterActionType
-
-// Начальное состояние
-let todolistID1 = v1()
-let todolistID2 = v1()
+  | ChangeTodolistEntityStatusType
 
 const initialState: DomainTodolist[] = []
 
 export const todolistsReducer = (state: DomainTodolist[] = initialState, action: ActionsType): DomainTodolist[] => {
   switch (action.type) {
     case "SET-TODOLISTS": {
-      return action.todolists.map(tl => ({ ...tl, filter: "all" }))
+      return action.todolists.map(tl => ({ ...tl, filter: "all", entityStatus: "idle" }))
     }
     case "REMOVE-TODOLIST": {
       return state.filter(tl => tl.id !== action.todolistId)
     }
     case "ADD-TODOLIST": {
-      console.log(action.payload)
       const newTodolist: DomainTodolist = {
         id: action.payload.todolist.id,
         title: action.payload.todolist.title,
         filter: "all",
         addedDate: "",
         order: 0,
+        entityStatus: "idle",
       }
       return [newTodolist, ...state]
     }
@@ -54,6 +53,9 @@ export const todolistsReducer = (state: DomainTodolist[] = initialState, action:
     case "CHANGE-TODOLIST-FILTER": {
       return state.map(tl => (tl.id === action.payload.id ? { ...tl, filter: action.payload.filter } : tl))
     }
+    case "CHANGE-TODOLIST-ENTITY-STATUS": {
+      return state.map(el => (el.id === action.payload.id ? { ...el, entityStatus: action.payload.entityStatus } : el))
+    }
     default:
       return state
   }
@@ -61,27 +63,36 @@ export const todolistsReducer = (state: DomainTodolist[] = initialState, action:
 
 //THUNKS
 export const fetchTodolistsThunk = () => (dispatch: Dispatch) => {
+  dispatch(setAppStatusAC("loading"))
   todolistsApi.getTodolists().then(res => {
+    dispatch(setAppStatusAC("succeeded"))
     dispatch(setTodolistsAC(res.data))
   })
 }
 
 export const addTodolistTC = (arg: { title: string }) => (dispatch: Dispatch) => {
+  dispatch(setAppStatusAC("loading"))
   const title = arg.title
   todolistsApi.createTodolist(title).then(res => {
     dispatch(addTodolistAC({ todolist: res.data.data.item }))
+    dispatch(setAppStatusAC("succeeded"))
   })
 }
 
 export const removeTodolistTC = (id: string) => (dispatch: Dispatch) => {
+  dispatch(setAppStatusAC("loading"))
+  dispatch(changeTodolistEntityStatusAC({ id, entityStatus: "loading" }))
   todolistsApi.deleteTodolist(id).then(res => {
     dispatch(removeTodolistAC(id))
+    dispatch(setAppStatusAC("succeeded"))
   })
 }
 
 export const updateTodolistTitleTC = (arg: { id: string; title: string }) => (dispatch: Dispatch) => {
+  dispatch(setAppStatusAC("loading"))
   todolistsApi.updateTodolist({ id: arg.id, title: arg.title }).then(res => {
     dispatch(changeTodolistTitleAC(arg))
+    dispatch(setAppStatusAC("succeeded"))
   })
 }
 
@@ -104,4 +115,8 @@ export const changeTodolistTitleAC = (payload: { id: string; title: string }) =>
 
 export const changeTodolistFilterAC = (payload: { id: string; filter: FilterValuesType }) => {
   return { type: "CHANGE-TODOLIST-FILTER", payload } as const
+}
+
+export const changeTodolistEntityStatusAC = (payload: { id: string; entityStatus: RequestStatus }) => {
+  return { type: "CHANGE-TODOLIST-ENTITY-STATUS", payload } as const
 }

@@ -5,17 +5,20 @@ import IconButton from "@mui/material/IconButton"
 import MenuIcon from "@mui/icons-material/Menu"
 import { MenuButton } from "common/components"
 import { LinearProgress, Switch } from "@mui/material"
-import { changeThemeAC, ThemeMode } from "../../../app/app-reducer"
-import { RootState } from "../../../app/store"
+import { changeThemeAC } from "../../../app/app-reducer"
 import { getTheme } from "../../theme/theme"
 import { useAppDispatch } from "../../hooks/useAppDispatch"
 import { useAppSelector } from "../../hooks/useAppSelector"
+import { selectAppStatus } from "../../../app/appStatusSelect"
+import { selectThemeMode } from "../../../app/appSelectors"
 
 export const Header = () => {
   const dispatch = useAppDispatch()
-  const themeMode = useAppSelector<RootState, ThemeMode>(state => state.app.themeMode)
-  const status = useAppSelector<RootState>(state => state.status)
+  const themeMode = useAppSelector(selectThemeMode)
+  const status = useAppSelector(selectAppStatus)
   const theme = getTheme(themeMode)
+
+  console.log(status)
 
   const changeModeHandler = () => {
     dispatch(changeThemeAC(themeMode === "light" ? "dark" : "light"))

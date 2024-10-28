@@ -4,6 +4,10 @@ import { tasksApi } from "../api/tasksApi"
 import { Dispatch } from "redux"
 import { DomainTask, UpdateTaskModel } from "../api/tasksApi.types"
 import { RootState } from "../../../app/store"
+import { setAppErrorAC, setAppStatusAC } from "../../../app/app-reducer"
+import { ResultCode } from "common/enums/enums"
+import { handleServerAppError } from "common/utils/handleServerAppError"
+import { handleServerNetworkError } from "common/utils/handleServerNetworkError"
 
 export type SetTaskActionCreatorType = ReturnType<typeof setTasksAC>
 export type RemoveTaskActionCreatorType = ReturnType<typeof removeTaskAC>
@@ -76,9 +80,20 @@ export const removeTaskTC = (arg: { taskId: string; todolistId: string }) => (di
 }
 
 export const addTaskTC = (arg: { title: string; todolistId: string }) => (dispatch: Dispatch) => {
-  tasksApi.createTask(arg).then(res => {
-    dispatch(addTaskAC({ task: res.data.data.item }))
-  })
+  dispatch(setAppStatusAC("loading"))
+  tasksApi
+    .createTask(arg)
+    .then(res => {
+      if (res.data.resultCode === ResultCode.Success) {
+        dispatch(addTaskAC({ task: res.data.data.item }))
+        dispatch(setAppStatusAC("succeeded"))
+      } else {
+        handleServerAppError(res.data, dispatch)
+      }
+    })
+    .catch(error => {
+      handleServerNetworkError(error, dispatch)
+    })
 }
 
 export const updateTaskTC =
@@ -100,9 +115,18 @@ export const updateTaskTC =
         startDate: task.startDate,
       }
 
-      tasksApi.updateTask({ taskId, todolistId, model }).then(res => {
-        dispatch(updateTaskAC({ todolistId, taskId, task: model }))
-      })
+      tasksApi
+        .updateTask({ taskId, todolistId, model })
+        .then(res => {
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(updateTaskAC(arg))
+          } else {
+            handleServerAppError(res.data, dispatch)
+          }
+        })
+        .catch(error => {
+          handleServerNetworkError(error, dispatch)
+        })
     }
   }
 

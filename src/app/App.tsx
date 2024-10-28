@@ -5,7 +5,7 @@ import { getTheme } from "common/theme/theme"
 import Main from "./Main"
 import { useAppSelector } from "common/hooks/useAppSelector"
 import { selectThemeMode } from "./appSelectors"
-import { Header } from "common/components"
+import { ErrorSnackbar, Header } from "common/components"
 import { useAppDispatch } from "common/hooks/useAppDispatch"
 import { fetchTodolistsThunk } from "../features/todolists/model/todolists-reducer"
 import { DomainTask } from "../features/todolists/api/tasksApi.types"
@@ -29,6 +29,7 @@ export function App() {
       <CssBaseline />
       <Header />
       <Main />
+      <ErrorSnackbar />
     </ThemeProvider>
   )
 }

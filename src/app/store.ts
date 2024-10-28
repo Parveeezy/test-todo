@@ -10,7 +10,6 @@ const rootReducer = combineReducers({
   tasks: tasksReducer,
   todolists: todolistsReducer,
   app: appReducer,
-  status: appReducer,
 })
 // непосредственно создаём store
 export const store = legacy_createStore(rootReducer, {}, applyMiddleware(thunk))

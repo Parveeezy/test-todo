@@ -2,14 +2,13 @@ import React, { ChangeEvent, KeyboardEvent, useState } from "react"
 import TextField from "@mui/material/TextField"
 import AddBoxIcon from "@mui/icons-material/AddBox"
 import IconButton from "@mui/material/IconButton"
-import { v1 } from "uuid"
-import { addTodolistAC } from "../../../features/todolists/model/todolists-reducer"
 
 type PropsType = {
   addItem: (title: string) => void
+  disabled?: boolean
 }
 
-export const AddItemForm = ({ addItem }: PropsType) => {
+export const AddItemForm = ({ addItem, disabled }: PropsType) => {
   const [title, setTitle] = useState("")
   const [error, setError] = useState<string | null>(null)
 
@@ -45,8 +44,9 @@ export const AddItemForm = ({ addItem }: PropsType) => {
         onChange={changeItemHandler}
         onKeyUp={addItemOnKeyUpHandler}
         sx={{ mt: "30px" }}
+        disabled={disabled}
       />
-      <IconButton onClick={addItemHandler} color={"primary"} sx={{ mt: "30px" }}>
+      <IconButton onClick={addItemHandler} color={"primary"} sx={{ mt: "30px" }} disabled={disabled}>
         <AddBoxIcon />
       </IconButton>
     </div>
