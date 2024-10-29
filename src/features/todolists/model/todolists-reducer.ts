@@ -1,7 +1,7 @@
 import { Todolist } from "../api/todolistsApi.types"
 import { Dispatch } from "redux"
 import { todolistsApi } from "../api/todolistsApi"
-import { RequestStatus, setAppStatusAC } from "../../../app/app-reducer"
+import { appActions, RequestStatus } from "app/app-reducer"
 
 export type FilterValuesType = "all" | "active" | "completed"
 
@@ -63,36 +63,36 @@ export const todolistsReducer = (state: DomainTodolist[] = initialState, action:
 
 //THUNKS
 export const fetchTodolistsThunk = () => (dispatch: Dispatch) => {
-  dispatch(setAppStatusAC("loading"))
+  dispatch(appActions.appStatus({ status: "loading" }))
   todolistsApi.getTodolists().then(res => {
-    dispatch(setAppStatusAC("succeeded"))
+    dispatch(appActions.appStatus({ status: "succeeded" }))
     dispatch(setTodolistsAC(res.data))
   })
 }
 
 export const addTodolistTC = (arg: { title: string }) => (dispatch: Dispatch) => {
-  dispatch(setAppStatusAC("loading"))
+  dispatch(appActions.appStatus({ status: "loading" }))
   const title = arg.title
   todolistsApi.createTodolist(title).then(res => {
     dispatch(addTodolistAC({ todolist: res.data.data.item }))
-    dispatch(setAppStatusAC("succeeded"))
+    dispatch(appActions.appStatus({ status: "succeeded" }))
   })
 }
 
 export const removeTodolistTC = (id: string) => (dispatch: Dispatch) => {
-  dispatch(setAppStatusAC("loading"))
+  dispatch(appActions.appStatus({ status: "loading" }))
   dispatch(changeTodolistEntityStatusAC({ id, entityStatus: "loading" }))
   todolistsApi.deleteTodolist(id).then(res => {
     dispatch(removeTodolistAC(id))
-    dispatch(setAppStatusAC("succeeded"))
+    dispatch(appActions.appStatus({ status: "succeeded" }))
   })
 }
 
 export const updateTodolistTitleTC = (arg: { id: string; title: string }) => (dispatch: Dispatch) => {
-  dispatch(setAppStatusAC("loading"))
+  dispatch(appActions.appStatus({ status: "loading" }))
   todolistsApi.updateTodolist({ id: arg.id, title: arg.title }).then(res => {
     dispatch(changeTodolistTitleAC(arg))
-    dispatch(setAppStatusAC("succeeded"))
+    dispatch(appActions.appStatus({ status: "succeeded" }))
   })
 }
 
