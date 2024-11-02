@@ -26,12 +26,12 @@ export const Task = ({ task, todolist }: Props) => {
     let status = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
 
     const newTaskStatus = { ...task, status }
-    dispatch(updateTaskTC({ taskId: task.id, todolistId: task.todoListId, task: newTaskStatus }))
+    dispatch(updateTaskTC({ id: task.id, todoListId: task.todoListId }))
   }
 
   const changeTaskTitleHandler = (title: string) => {
     const newTaskTitle = { ...task, title }
-    dispatch(updateTaskTC({ todolistId: task.todoListId, taskId: task.id, task: newTaskTitle }))
+    dispatch(updateTaskTC({ todoListId: task.todoListId, id: task.id, task: newTaskTitle }))
   }
 
   return (
